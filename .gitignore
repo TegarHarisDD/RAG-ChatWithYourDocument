@@ -2,6 +2,9 @@
 .env
 *.env.local
 
+# Agent / planning scratch files
+.scratch/
+
 # Python
 __pycache__/
 *.py[cod]
