@@ -120,9 +120,44 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return handle<T>(res);
 }
 
-async function upload<T>(path: string, body: FormData): Promise<T> {
-  const res = await fetch(path, { method: "POST", credentials: "same-origin", body });
-  return handle<T>(res);
+function uploadWithProgress<T>(
+  path: string,
+  body: FormData,
+  onProgress?: (percent: number) => void
+): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", path);
+    xhr.withCredentials = true;
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
+    xhr.onload = () => {
+      let payload: unknown = null;
+      if (xhr.responseText) {
+        try {
+          payload = JSON.parse(xhr.responseText);
+        } catch {
+          payload = null;
+        }
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve((xhr.status === 204 ? undefined : payload) as T);
+        return;
+      }
+      const detail =
+        payload &&
+        typeof payload === "object" &&
+        typeof (payload as { detail?: unknown }).detail === "string"
+          ? (payload as { detail: string }).detail
+          : xhr.statusText;
+      reject(new ApiError(xhr.status, detail));
+    };
+    xhr.onerror = () => reject(new ApiError(0, "Network error while uploading."));
+    xhr.send(body);
+  });
 }
 
 export const api = {
@@ -153,6 +188,11 @@ export const api = {
       body: JSON.stringify({ title }),
     }),
   deleteSession: (id: string) => request<void>(`/api/sessions/${id}`, { method: "DELETE" }),
+  deleteSessions: (ids: string[]) =>
+    request<{ deleted: number }>("/api/sessions/bulk-delete", {
+      method: "POST",
+      body: JSON.stringify({ ids }),
+    }),
 
   listChats: (sessionId: string) => request<Chat[]>(`/api/sessions/${sessionId}/chats`),
   createChat: (sessionId: string, title?: string) =>
@@ -185,12 +225,16 @@ export const api = {
 
   listDocuments: (sessionId: string) =>
     request<Document[]>(`/api/sessions/${sessionId}/documents`),
-  uploadDocuments: (sessionId: string, files: File[]) => {
+  uploadDocuments: (sessionId: string, files: File[], onProgress?: (percent: number) => void) => {
     const form = new FormData();
     for (const file of files) {
       form.append("files", file);
     }
-    return upload<Document[]>(`/api/sessions/${sessionId}/documents`, form);
+    return uploadWithProgress<Document[]>(
+      `/api/sessions/${sessionId}/documents`,
+      form,
+      onProgress
+    );
   },
   getDocument: (id: string) => request<Document>(`/api/documents/${id}`),
   renameDocument: (id: string, filename: string) =>

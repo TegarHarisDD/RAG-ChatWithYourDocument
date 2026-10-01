@@ -8,6 +8,8 @@ export default {
         // Semantic tokens resolved from CSS variables (see styles.css). The
         // whole palette swaps between light and dark by toggling `.dark` on
         // <html>, so every surface follows without per-element dark: variants.
+        // The system is monochrome: accent and primary both resolve to ink, so
+        // no component carries chroma (the aura glow is the only hue).
         bg: "rgb(var(--c-bg) / <alpha-value>)",
         panel: "rgb(var(--c-panel) / <alpha-value>)",
         panel2: "rgb(var(--c-panel2) / <alpha-value>)",
@@ -25,41 +27,36 @@ export default {
         warning: "rgb(var(--c-warning) / <alpha-value>)",
       },
       fontFamily: {
-        // Display: Fraunces. Reading: Newsreader. Apparatus + interface:
-        // IBM Plex Mono. Prose is set in a serif; every machine fact (counts,
-        // locators, statuses, timestamps) is set in mono.
-        display: ["Fraunces", "Iowan Old Style", "Georgia", "serif"],
-        reading: ["Newsreader", "Iowan Old Style", "Georgia", "serif"],
-        mono: [
-          "IBM Plex Mono",
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "Consolas",
-          "monospace",
-        ],
+        // One family, no exceptions. Display, reading, and mono all resolve to
+        // the same grotesque so hierarchy comes from size and weight alone.
         sans: [
-          "IBM Plex Mono",
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "Consolas",
-          "monospace",
+          "Inter",
+          "Geist",
+          "ui-sans-serif",
+          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
         ],
+        display: ["Inter", "Geist", "ui-sans-serif", "system-ui", "sans-serif"],
+        reading: ["Inter", "Geist", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["Inter", "Geist", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      borderRadius: {
+        control: "var(--radius-control)",
+        panel: "var(--radius-panel)",
+        prompt: "var(--radius-prompt)",
+        pill: "var(--radius-pill)",
       },
       keyframes: {
-        // A single orchestrated entrance, used once per surface.
-        settle: {
-          "0%": { opacity: "0", transform: "translateY(6px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
         caret: {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0" },
         },
       },
       animation: {
-        settle: "settle 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both",
         caret: "caret 1s step-end infinite",
       },
     },

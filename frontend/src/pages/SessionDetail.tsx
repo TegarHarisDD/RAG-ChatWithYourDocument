@@ -83,12 +83,10 @@ export default function SessionDetail() {
   if (!sessionId) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-        <span aria-hidden="true" className="font-mono text-2xl text-accent">
-          ¶
-        </span>
-        <h2 className="font-display text-2xl font-medium">Nothing open</h2>
-        <p className="max-w-xs font-reading text-sm italic text-muted">
-          Choose a session from the catalogue, or begin a new one.
+        <span aria-hidden="true" className="h-3.5 w-3.5 rounded-pill bg-ink" />
+        <h2 className="mt-1 text-2xl font-medium tracking-[-0.02em]">Nothing open</h2>
+        <p className="max-w-xs text-sm text-muted">
+          Choose a session from the sidebar, or start a new one.
         </p>
       </div>
     );
@@ -96,8 +94,8 @@ export default function SessionDetail() {
 
   if (sessionQuery.isLoading) {
     return (
-      <div className="flex h-full items-center justify-center font-mono text-xs text-faint">
-        opening…
+      <div className="flex h-full items-center justify-center text-sm text-muted">
+        Opening…
       </div>
     );
   }
@@ -106,10 +104,10 @@ export default function SessionDetail() {
     const notFound = sessionQuery.error instanceof ApiError && sessionQuery.error.status === 404;
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 p-8 text-center">
-        <h2 className={`font-display text-2xl font-medium ${notFound ? "" : "text-danger"}`}>
+        <h2 className="text-2xl font-medium tracking-[-0.02em]">
           {notFound ? "Session not found" : "Something went wrong"}
         </h2>
-        <p className="max-w-xs font-reading text-sm italic text-muted">
+        <p className="max-w-xs text-sm text-muted">
           {notFound
             ? "This session does not exist, or it was deleted."
             : "Could not load this session."}
@@ -121,53 +119,39 @@ export default function SessionDetail() {
   const session = sessionQuery.data as Session;
 
   return (
-    <div className="flex h-full flex-col animate-settle">
-      <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-5">
-        <div className="flex min-w-0 items-start gap-3">
-          <span
-            aria-hidden="true"
-            className="mt-2.5 h-2.5 w-2.5 shrink-0 bg-accent"
-          />
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-medium tracking-tight">
-              {session.title}
-            </h1>
-            <p className="mt-1 font-mono text-[11px] text-faint">
-              {session.document_count}{" "}
-              {session.document_count === 1 ? "source" : "sources"} · opened{" "}
-              {new Date(session.created_at).toLocaleString()}
+    <div className="flex h-full flex-col">
+      <header className="flex items-start justify-between gap-4 px-6 py-5">
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-medium tracking-[-0.02em]">{session.title}</h1>
+          <p className="mt-1 text-sm text-muted">
+            {session.document_count} {session.document_count === 1 ? "source" : "sources"},
+            created {new Date(session.created_at).toLocaleString()}
+          </p>
+          {actionError ? (
+            <p role="alert" className="mt-2 text-sm text-muted">
+              {actionError}
             </p>
-            {actionError ? (
-              <p role="alert" className="mt-2 font-reading text-xs text-danger">
-                {actionError}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button className={btnGhost} onClick={() => setDialog("rename")}>
             Rename
           </button>
-          <button
-            className={`${btnGhost} hover:text-danger`}
-            onClick={() => setDialog("delete")}
-          >
+          <button className={btnGhost} onClick={() => setDialog("delete")}>
             Delete
           </button>
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[minmax(280px,360px)_minmax(0,1fr)] lg:overflow-hidden">
+      <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto p-4 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)] lg:overflow-hidden">
         <DocumentsPanel sessionId={sessionId} />
 
         {session.chat_id ? (
           <ChatPanel sessionId={sessionId} chatId={session.chat_id} sessionTitle={session.title} />
         ) : (
-          <section className="flex min-h-0 flex-col border border-line bg-panel p-5">
-            <h2 className="font-display text-base">Transcript</h2>
-            <p className="mt-2 font-reading text-sm italic text-muted">
-              Preparing your conversation…
-            </p>
+          <section className="flex min-h-0 flex-col rounded-panel bg-panel p-5">
+            <h2 className="text-base font-medium">Transcript</h2>
+            <p className="mt-2 text-sm text-muted">Preparing your conversation…</p>
           </section>
         )}
       </div>

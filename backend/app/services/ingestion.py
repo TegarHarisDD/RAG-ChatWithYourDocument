@@ -11,6 +11,7 @@ re-embed without a re-upload.
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timezone
 
 from bson import ObjectId
@@ -66,7 +67,9 @@ async def _embed_and_store(
     """Chunk, embed, and replace this document's chunks; then mark it ready."""
     try:
         blocks = [extraction.TextBlock(text=s["text"], locator=s.get("locator", {})) for s in segments]
-        chunks = chunk_blocks(blocks, settings.chunk_size, settings.chunk_overlap)
+        chunks = await asyncio.to_thread(
+            chunk_blocks, blocks, settings.chunk_size, settings.chunk_overlap
+        )
         if not chunks:
             raise extraction.NoExtractableText("No extractable text — this file may be a scan")
 
@@ -117,7 +120,7 @@ async def ingest_document(
     await _processing(db, oid)
 
     try:
-        result = extraction.extract(content, filename)
+        result = await asyncio.to_thread(extraction.extract, content, filename)
     except extraction.NoExtractableText as exc:
         await _fail(db, oid, str(exc))
         return

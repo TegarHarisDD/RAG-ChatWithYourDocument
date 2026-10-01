@@ -13,6 +13,7 @@ PROTECTED_ROUTES = [
     ("POST", "/api/auth/logout"),
     ("GET", "/api/sessions"),
     ("POST", "/api/sessions"),
+    ("POST", "/api/sessions/bulk-delete"),
     ("GET", "/api/sessions/000000000000000000000000"),
     ("PATCH", "/api/sessions/000000000000000000000000"),
     ("DELETE", "/api/sessions/000000000000000000000000"),

@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#E8ECF2" />
+    <meta name="theme-color" content="#fcfcfc" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap"
     />
-    <title>RAG — a reading room for your documents</title>
+    <title>RAG — chat over your documents</title>
     <script>
       // Resolve the theme before first paint so there is no flash.
       (function () {
@@ -21,8 +21,9 @@
             ? stored === "dark"
             : window.matchMedia("(prefers-color-scheme: dark)").matches;
           document.documentElement.classList.toggle("dark", dark);
+          document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
           var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute("content", dark ? "#141A22" : "#E8ECF2");
+          if (meta) meta.setAttribute("content", dark ? "#0a0a0a" : "#fcfcfc");
         } catch (e) {
           /* ignore */
         }

@@ -123,21 +123,21 @@ export default function CommandPalette({
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className="m-auto w-[min(92vw,34rem)] overflow-hidden border border-line bg-raised p-0 text-ink shadow-[0_24px_60px_-20px_rgba(12,18,28,0.55)] ring-1 ring-black/5 dark:ring-white/10"
+      className="m-auto w-[min(92vw,34rem)] overflow-hidden rounded-panel bg-raised p-0 text-ink shadow-[0_8px_32px_oklch(0_0_0/0.08)]"
     >
-      <div className="border-b border-line px-4 py-3">
+      <div className="px-5 py-4">
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={onKeyDown}
           placeholder="Search sessions and messages…"
           aria-label="Search sessions and messages"
-          className="w-full bg-transparent font-reading text-base text-ink outline-none placeholder:text-faint"
+          className="w-full bg-transparent text-base text-ink outline-none placeholder:text-muted"
         />
       </div>
-      <ul className="max-h-[60vh] overflow-y-auto py-1">
+      <ul className="max-h-[60vh] overflow-y-auto px-1 pb-1">
         {items.length === 0 ? (
-          <li className="px-4 py-3 font-reading text-sm italic text-muted">
+          <li className="px-3 py-3 text-sm text-muted">
             {query.trim() ? "No matches." : "Type to search sessions and messages."}
           </li>
         ) : (
@@ -147,14 +147,12 @@ export default function CommandPalette({
                 type="button"
                 onMouseEnter={() => setActive(index)}
                 onClick={() => run(item)}
-                className={`flex w-full items-baseline gap-3 px-4 py-2 text-left transition-colors ${
-                  index === active ? "bg-panel2" : "hover:bg-panel2/60"
+                className={`flex w-full items-baseline gap-3 rounded-control px-3 py-2.5 text-left text-sm transition-colors ${
+                  index === active ? "bg-panel2" : "hover:bg-panel2"
                 }`}
               >
-                <span className="min-w-0 flex-1 truncate font-reading text-sm">{item.label}</span>
-                <span className="shrink-0 font-mono text-[10px] tracking-wide text-faint">
-                  {item.hint}
-                </span>
+                <span className="min-w-0 flex-1 truncate">{item.label}</span>
+                <span className="shrink-0 text-sm text-muted">{item.hint}</span>
               </button>
             </li>
           ))

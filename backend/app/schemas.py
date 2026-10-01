@@ -33,6 +33,14 @@ class SessionUpdate(BaseModel):
     title: str
 
 
+class SessionBulkDelete(BaseModel):
+    ids: list[str] = Field(default_factory=list)
+
+
+class BulkDeleteOut(BaseModel):
+    deleted: int
+
+
 class SessionOut(BaseModel):
     id: str
     title: str

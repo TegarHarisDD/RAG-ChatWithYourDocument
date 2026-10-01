@@ -11,9 +11,9 @@ function AuthGuard() {
     return (
       <div
         role="status"
-        className="flex h-screen items-center justify-center font-mono text-xs text-faint"
+        className="flex h-screen items-center justify-center text-sm text-muted"
       >
-        opening…
+        Opening…
       </div>
     );
   }

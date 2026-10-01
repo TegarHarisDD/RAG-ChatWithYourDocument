@@ -6,8 +6,8 @@ const STORAGE_KEY = "cwd:theme";
 const THEME_EVENT = "cwd:theme";
 
 const THEME_COLORS: Record<Theme, string> = {
-  light: "#E8ECF2",
-  dark: "#141A22",
+  light: "#fcfcfc",
+  dark: "#0a0a0a",
 };
 
 export function getTheme(): Theme {
@@ -16,6 +16,7 @@ export function getTheme(): Theme {
 
 export function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.setAttribute("data-theme", theme);
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute("content", THEME_COLORS[theme]);
   window.dispatchEvent(new Event(THEME_EVENT));

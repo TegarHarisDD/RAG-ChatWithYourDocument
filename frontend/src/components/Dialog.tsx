@@ -1,9 +1,11 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { SpinnerIcon } from "./icons";
 import { btnDanger, btnGhost, btnPrimary, inputClass } from "../ui";
 
 // A modal built on the native <dialog> element, so focus trapping, Escape, and
-// the top-layer stacking come from the platform. Only the chrome is ours.
-function Dialog({
+// the top-layer stacking come from the platform. A floating layer gets one soft
+// diffuse shadow; everything else is flat.
+export function Dialog({
   open,
   onClose,
   title,
@@ -40,13 +42,13 @@ function Dialog({
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className="m-auto w-[min(92vw,28rem)] max-h-[85vh] overflow-auto border border-line bg-raised p-0 text-ink shadow-[0_24px_60px_-20px_rgba(12,18,28,0.55)] ring-1 ring-black/5 dark:ring-white/10"
+      className="m-auto w-[min(92vw,28rem)] max-h-[85vh] overflow-auto rounded-panel bg-raised p-0 text-ink shadow-[0_8px_32px_oklch(0_0_0/0.08)]"
     >
-      <div className="border-b border-line px-5 py-3">
-        <h2 className="font-display text-lg font-medium">{title}</h2>
+      <div className="px-5 pb-3 pt-5">
+        <h2 className="text-lg font-medium tracking-[-0.015em]">{title}</h2>
       </div>
-      <div className="px-5 py-4">{children}</div>
-      <div className="flex justify-end gap-2 border-t border-line px-5 py-3">{footer}</div>
+      <div className="px-5 pb-4">{children}</div>
+      <div className="flex justify-end gap-2 px-5 pb-5">{footer}</div>
     </dialog>
   );
 }
@@ -56,7 +58,9 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = "Delete",
+  pendingLabel,
   danger = false,
+  pending = false,
   onConfirm,
   onClose,
 }: {
@@ -64,33 +68,41 @@ export function ConfirmDialog({
   title: string;
   description?: ReactNode;
   confirmLabel?: string;
+  pendingLabel?: string;
   danger?: boolean;
+  pending?: boolean;
   onConfirm: () => void;
   onClose: () => void;
 }) {
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={pending ? () => {} : onClose}
       title={title}
       footer={
         <>
-          <button className={btnGhost} onClick={onClose}>
+          <button className={btnGhost} onClick={onClose} disabled={pending}>
             Cancel
           </button>
           <button
             className={danger ? btnDanger : btnPrimary}
             data-autofocus
             onClick={onConfirm}
+            disabled={pending}
           >
-            {confirmLabel}
+            {pending ? (
+              <>
+                <SpinnerIcon />
+                {pendingLabel ?? "Working…"}
+              </>
+            ) : (
+              confirmLabel
+            )}
           </button>
         </>
       }
     >
-      {description ? (
-        <p className="font-reading text-sm leading-relaxed text-muted">{description}</p>
-      ) : null}
+      {description ? <p className="text-sm text-muted">{description}</p> : null}
     </Dialog>
   );
 }
@@ -131,12 +143,7 @@ export function PromptDialog({
           <button type="button" className={btnGhost} onClick={onClose}>
             Cancel
           </button>
-          <button
-            type="submit"
-            form={formId}
-            className={btnPrimary}
-            disabled={!trimmed}
-          >
+          <button type="submit" form={formId} className={btnPrimary} disabled={!trimmed}>
             {confirmLabel}
           </button>
         </>
@@ -149,7 +156,7 @@ export function PromptDialog({
           if (trimmed) onConfirm(trimmed);
         }}
       >
-        <label className="flex flex-col gap-2 font-mono text-[11px] tracking-wide text-muted">
+        <label className="flex flex-col gap-2 text-sm font-medium text-muted">
           {label}
           <input
             className={inputClass}

@@ -13,7 +13,7 @@ from bson.errors import InvalidId
 from fastapi import APIRouter, HTTPException, status
 
 from ..deps import DatabaseDep, OwnerDep, VectorStoreDep
-from ..schemas import SessionCreate, SessionOut, SessionUpdate
+from ..schemas import BulkDeleteOut, SessionBulkDelete, SessionCreate, SessionOut, SessionUpdate
 from ..services import cascade
 from ..services.titles import DEFAULT_TITLE
 
@@ -119,6 +119,31 @@ async def create_session(payload: SessionCreate, db: DatabaseDep, owner: OwnerDe
         last_active_at=now,
         document_count=0,
     )
+
+
+@router.post("/bulk-delete", response_model=BulkDeleteOut)
+async def bulk_delete_sessions(
+    payload: SessionBulkDelete,
+    db: DatabaseDep,
+    vector_store: VectorStoreDep,
+    owner: OwnerDep,
+):
+    """Delete many sessions in one request, skipping ids that no longer exist.
+
+    Unknown or malformed ids are ignored so a stale selection does not fail the
+    whole cleanup.
+    """
+    deleted = 0
+    for session_id in payload.ids:
+        try:
+            oid = ObjectId(session_id)
+        except (InvalidId, TypeError):
+            continue
+        if not await db.db.sessions.find_one({"_id": oid}):
+            continue
+        await cascade.delete_session(db, vector_store, session_id)
+        deleted += 1
+    return BulkDeleteOut(deleted=deleted)
 
 
 @router.get("/{session_id}", response_model=SessionOut)

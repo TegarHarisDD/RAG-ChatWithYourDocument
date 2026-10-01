@@ -20,16 +20,14 @@ export default function CitationSource({
   return (
     <section
       aria-label="Source passage"
-      className="mt-4 border-l-2 border-accent bg-panel2/60 px-4 py-3"
+      className="mt-3 rounded-panel bg-bg px-4 py-3"
     >
       <div className="flex items-baseline gap-3">
-        <span className="shrink-0 font-mono text-[11px] text-accent">[{citation.index}]</span>
-        <strong className="min-w-0 flex-1 truncate font-reading text-sm font-medium">
+        <span className="shrink-0 text-sm text-muted">[{citation.index}]</span>
+        <strong className="min-w-0 flex-1 truncate text-sm font-medium">
           {citation.filename}
         </strong>
-        {locator ? (
-          <span className="shrink-0 font-mono text-[11px] text-faint">{locator}</span>
-        ) : null}
+        {locator ? <span className="shrink-0 text-sm text-muted">{locator}</span> : null}
         <button
           className={`${btnGhost} shrink-0`}
           onClick={onClose}
@@ -40,19 +38,19 @@ export default function CitationSource({
       </div>
 
       {chunkQuery.isLoading ? (
-        <p role="status" className="mt-3 font-mono text-[11px] text-faint">
-          retrieving passage…
+        <p role="status" className="mt-3 text-sm text-muted">
+          Retrieving passage…
         </p>
       ) : null}
       {chunkQuery.isError ? (
-        <p role="alert" className="mt-3 font-reading text-xs text-danger">
+        <p role="alert" className="mt-3 text-sm text-muted">
           {chunkQuery.error instanceof ApiError && chunkQuery.error.status === 404
             ? "This source passage is no longer available."
             : "Could not load the source passage."}
         </p>
       ) : null}
       {chunkQuery.data ? (
-        <blockquote className="mt-3 border-l border-line pl-4 font-reading text-[0.95rem] italic leading-relaxed text-ink/90">
+        <blockquote className="mt-3 border-l border-line pl-4 text-[0.95rem] leading-relaxed text-muted">
           {chunkQuery.data.text}
         </blockquote>
       ) : null}

@@ -89,3 +89,59 @@ async def test_delete_missing_session_is_not_found(client):
     await login(client)
     response = await client.delete("/api/sessions/000000000000000000000000")
     assert response.status_code == 404
+
+
+async def test_bulk_delete_removes_selected_sessions_at_once(client, database):
+    await login(client)
+    keep = await _create(client, "Keep")
+    first = await _create(client, "First")
+    second = await _create(client, "Second")
+
+    response = await client.post(
+        "/api/sessions/bulk-delete", json={"ids": [first["id"], second["id"]]}
+    )
+    assert response.status_code == 200
+    assert response.json() == {"deleted": 2}
+
+    listed = (await client.get("/api/sessions")).json()
+    assert [s["id"] for s in listed] == [keep["id"]]
+    assert (await client.get(f"/api/sessions/{first['id']}")).status_code == 404
+
+
+async def test_bulk_delete_cascades_and_skips_unknown_ids(client, database):
+    await login(client)
+    doomed = await _create(client, "Doomed")
+    chat = (
+        await client.post(f"/api/sessions/{doomed['id']}/chats", json={"title": "Thread"})
+    ).json()
+    await database.db.messages.insert_one(
+        {
+            "chat_id": chat["id"],
+            "session_id": doomed["id"],
+            "role": "user",
+            "content": "hello",
+            "citations": [],
+            "created_at": datetime.now(timezone.utc),
+        }
+    )
+
+    response = await client.post(
+        "/api/sessions/bulk-delete",
+        json={"ids": [doomed["id"], "not-an-object-id", "000000000000000000000000"]},
+    )
+    assert response.status_code == 200
+    assert response.json() == {"deleted": 1}
+
+    assert await database.db.chats.count_documents({"session_id": doomed["id"]}) == 0
+    assert await database.db.messages.count_documents({"session_id": doomed["id"]}) == 0
+
+
+async def test_bulk_delete_with_no_ids_is_a_noop(client):
+    await login(client)
+    session = await _create(client)
+
+    response = await client.post("/api/sessions/bulk-delete", json={"ids": []})
+    assert response.status_code == 200
+    assert response.json() == {"deleted": 0}
+
+    assert (await client.get(f"/api/sessions/{session['id']}")).status_code == 200

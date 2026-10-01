@@ -26,7 +26,7 @@ function renderInline(text: string, ctx: Ctx, keyBase: string): ReactNode[] {
 
     if (token.startsWith("`")) {
       nodes.push(
-        <code key={key} className="bg-panel2 px-1 py-0.5 font-mono text-[0.85em] text-ink">
+        <code key={key} className="rounded-control bg-panel2 px-1.5 py-0.5 text-[0.9em] text-ink">
           {token.slice(1, -1)}
         </code>
       );
@@ -58,7 +58,7 @@ function renderInline(text: string, ctx: Ctx, keyBase: string): ReactNode[] {
             href={link[2].trim()}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+            className="text-ink underline decoration-line underline-offset-2 hover:decoration-ink"
           >
             {renderInline(link[1], ctx, key)}
           </a>
@@ -134,7 +134,7 @@ function renderBlocks(content: string, ctx: Ctx, trailing?: ReactNode): ReactNod
       blocks.push(
         <pre
           key={base}
-          className="mt-3 overflow-x-auto border border-line bg-panel2 p-3 font-mono text-xs leading-relaxed first:mt-0"
+          className="mt-3 overflow-x-auto rounded-panel bg-panel2 p-4 text-sm leading-relaxed first:mt-0"
         >
           <code>{code.join("\n")}</code>
         </pre>
@@ -159,7 +159,7 @@ function renderBlocks(content: string, ctx: Ctx, trailing?: ReactNode): ReactNod
       blocks.push(
         <p
           key={base}
-          className="mt-5 font-display text-base font-medium leading-snug first:mt-0"
+          className="mt-5 text-base font-medium leading-snug first:mt-0"
         >
           {renderInline(heading[2], ctx, base)}
         </p>
@@ -178,7 +178,7 @@ function renderBlocks(content: string, ctx: Ctx, trailing?: ReactNode): ReactNod
       blocks.push(
         <blockquote
           key={base}
-          className="mt-3 border-l-2 border-accent/40 pl-4 italic text-ink/85 first:mt-0"
+          className="mt-3 border-l-2 border-line pl-4 text-muted first:mt-0"
         >
           {renderLines(quote, ctx, base)}
         </blockquote>
@@ -197,7 +197,7 @@ function renderBlocks(content: string, ctx: Ctx, trailing?: ReactNode): ReactNod
       blocks.push(
         <ul
           key={base}
-          className={`mt-3 space-y-1 pl-5 marker:text-faint first:mt-0 ${
+          className={`mt-3 space-y-1 pl-5 marker:text-muted first:mt-0 ${
             ordered ? "list-decimal" : "list-disc"
           }`}
         >
@@ -259,7 +259,7 @@ export default function MessageContent({
   };
 
   return (
-    <div className="break-words font-reading text-[1.0625rem] leading-[1.75] text-ink/95">
+    <div className="break-words text-base leading-relaxed text-ink">
       {renderBlocks(content, ctx, trailing)}
     </div>
   );

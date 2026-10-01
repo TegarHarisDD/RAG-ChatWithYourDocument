@@ -16,13 +16,12 @@ import CitationSource from "./CitationSource";
 import MessageContent from "./MessageContent";
 import { ConfirmDialog } from "./Dialog";
 import { CopyIcon, CopySourcesIcon, EditIcon, RegenerateIcon, TrashIcon } from "./icons";
-import { btnDanger, btnGhost, btnPrimary } from "../ui";
+import { btnGhost, btnPrimary } from "../ui";
 
 function ActionButton({
   label,
   onClick,
   disabled = false,
-  danger = false,
   children,
 }: {
   label: string;
@@ -31,13 +30,10 @@ function ActionButton({
   danger?: boolean;
   children: React.ReactNode;
 }) {
-  const tone = danger
-    ? "border-line text-muted hover:border-danger hover:text-danger"
-    : "border-line text-muted hover:border-accent hover:text-accent";
   return (
     <button
       type="button"
-      className={`flex h-7 w-7 items-center justify-center border transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${tone}`}
+      className="inline-grid h-9 w-9 place-items-center rounded-pill text-muted transition-colors duration-150 hover:bg-panel2 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
@@ -51,11 +47,11 @@ function ActionButton({
 function finishNote(reason: string | null): string | null {
   switch (reason) {
     case "stopped":
-      return "stopped mid-answer";
+      return "Stopped mid-answer";
     case "no_documents":
-      return "no sources yet";
+      return "No sources yet";
     case "nothing_relevant":
-      return "nothing relevant found";
+      return "Nothing relevant found";
     default:
       return null;
   }
@@ -360,11 +356,11 @@ export default function ChatPanel({
   if (chatQuery.isError) {
     const notFound = chatQuery.error instanceof ApiError && chatQuery.error.status === 404;
     return (
-      <div className="flex min-h-0 flex-col items-center justify-center gap-2 border border-line bg-panel p-8 text-center">
-        <h2 className="font-display text-xl font-medium">
+      <div className="flex min-h-0 flex-col items-center justify-center gap-2 rounded-panel bg-panel p-8 text-center">
+        <h2 className="text-lg font-medium tracking-[-0.015em]">
           {notFound ? "Conversation not found" : "Something went wrong"}
         </h2>
-        <p className="font-reading text-sm italic text-muted">
+        <p className="text-sm text-muted">
           {notFound ? "This conversation was deleted." : "Could not load this conversation."}
         </p>
       </div>
@@ -377,10 +373,10 @@ export default function ChatPanel({
   return (
     <section
       id="transcript"
-      className="flex min-h-0 flex-col border border-line bg-panel lg:overflow-hidden"
+      className="flex min-h-0 flex-col rounded-panel bg-panel lg:overflow-hidden"
     >
-      <div className="flex items-baseline justify-between gap-2 border-b border-line px-5 py-3">
-        <h2 className="font-display text-base">Transcript</h2>
+      <div className="flex items-center justify-between gap-2 px-5 py-3">
+        <h2 className="text-base font-medium">Transcript</h2>
         <div className="flex items-center gap-1 print:hidden">
           <button
             className={btnGhost}
@@ -405,18 +401,15 @@ export default function ChatPanel({
       </div>
 
       {actionError ? (
-        <p
-          role="alert"
-          className="border-b border-line bg-danger/5 px-5 py-2 font-reading text-xs text-danger"
-        >
+        <p role="alert" className="px-5 pb-3 text-sm text-muted">
           {actionError}
         </p>
       ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        <h2 className="mb-4 hidden font-display text-xl font-medium print:block">
+        <h1 className="mb-4 hidden text-xl font-medium tracking-[-0.015em] print:block">
           {sessionTitle}
-        </h2>
+        </h1>
 
         {messagesQuery.isLoading ? (
           <div aria-busy="true" className="space-y-4">
@@ -425,174 +418,129 @@ export default function ChatPanel({
           </div>
         ) : null}
         {messagesQuery.isError ? (
-          <p role="alert" className="font-reading text-xs text-danger">
+          <p role="alert" className="text-sm text-muted">
             Could not load messages.
           </p>
         ) : null}
         {!messagesQuery.isLoading && messages.length === 0 && !streaming ? (
-          <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-            <span aria-hidden="true" className="font-mono text-xl text-accent">
-              ¶
-            </span>
-            <p className="max-w-xs font-reading text-sm italic text-muted">
+          <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+            <span aria-hidden="true" className="h-3.5 w-3.5 rounded-pill bg-ink" />
+            <p className="max-w-xs text-sm text-muted">
               {hasReadyDocument
-                ? "Ask a question about this session's documents below."
+                ? "Ask what these documents say."
                 : "Add a document to the corpus to begin."}
             </p>
           </div>
         ) : null}
 
-        <ul className="space-y-6">
+        <ul className="space-y-5">
           {messages.map((message) => {
             const isUser = message.role === "user";
             const note = isUser ? null : finishNote(message.finish_reason);
             const isEditing = editingId === message.id;
             return (
-              <li
-                key={message.id}
-                id={`m-${message.id}`}
-                className="group grid scroll-mt-6 grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3"
-              >
-                <span
-                  aria-hidden="true"
-                  className={`select-none pt-0.5 font-mono text-sm ${
-                    isUser ? "text-accent" : "text-faint"
-                  }`}
-                >
-                  {isUser ? "?" : "¶"}
-                </span>
-                <div
-                  className={
-                    isUser
-                      ? "border-l border-accent/40 pl-4"
-                      : "border-t border-line pt-4"
-                  }
-                >
-                  {note ? (
-                    <p className="mb-2 font-mono text-[10px] tracking-wide text-faint">{note}</p>
-                  ) : null}
+              <li key={message.id} id={`m-${message.id}`} className="group scroll-mt-6">
+                {note ? <p className="mb-1.5 text-[13px] text-muted">{note}</p> : null}
 
-                  {isEditing ? (
-                    <div className="flex flex-col gap-2">
-                      <textarea
-                        aria-label="Edit question"
-                        autoFocus
-                        rows={2}
-                        className="w-full resize-none border border-line bg-bg px-3 py-2 font-reading text-base leading-relaxed text-ink outline-none focus:border-accent"
-                        value={editValue}
-                        onChange={(event) => setEditValue(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" && !event.shiftKey) {
-                            event.preventDefault();
-                            void onSubmitEdit(message);
-                          } else if (event.key === "Escape") {
-                            setEditingId(null);
-                          }
-                        }}
-                      />
-                      <div className="flex gap-3">
-                        <button className={btnPrimary} onClick={() => void onSubmitEdit(message)}>
-                          Send again
-                        </button>
-                        <button className={btnGhost} onClick={() => setEditingId(null)}>
-                          Cancel
-                        </button>
-                      </div>
+                {isEditing ? (
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      aria-label="Edit question"
+                      autoFocus
+                      rows={2}
+                      className="w-full resize-none rounded-panel bg-bg px-4 py-3 text-base leading-relaxed text-ink outline-none"
+                      value={editValue}
+                      onChange={(event) => setEditValue(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && !event.shiftKey) {
+                          event.preventDefault();
+                          void onSubmitEdit(message);
+                        } else if (event.key === "Escape") {
+                          setEditingId(null);
+                        }
+                      }}
+                    />
+                    <div className="flex gap-2">
+                      <button className={btnPrimary} onClick={() => void onSubmitEdit(message)}>
+                        Send again
+                      </button>
+                      <button className={btnGhost} onClick={() => setEditingId(null)}>
+                        Cancel
+                      </button>
                     </div>
-                  ) : isUser ? (
-                    <p className="whitespace-pre-wrap break-words font-reading text-lg leading-snug text-ink">
+                  </div>
+                ) : isUser ? (
+                  <div className="flex justify-end">
+                    <p className="max-w-[85%] whitespace-pre-wrap break-words rounded-panel bg-bg px-4 py-2.5 text-base">
                       {message.content}
                     </p>
-                  ) : (
-                    <MessageContent
-                      content={message.content}
-                      citations={message.citations}
-                      onCitation={setRevealed}
-                    />
-                  )}
+                  </div>
+                ) : (
+                  <MessageContent
+                    content={message.content}
+                    citations={message.citations}
+                    onCitation={setRevealed}
+                  />
+                )}
 
-                  {!isEditing ? (
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5 print:hidden">
-                      <ActionButton label="Copy" onClick={() => void copyText(message.content)}>
-                        <CopyIcon />
-                      </ActionButton>
-                      {isUser ? (
-                        <>
-                          <ActionButton
-                            label="Edit and resend"
-                            onClick={() => {
-                              setEditingId(message.id);
-                              setEditValue(message.content);
-                            }}
-                            disabled={streaming}
-                          >
-                            <EditIcon />
-                          </ActionButton>
-                          <ActionButton
-                            label="Delete"
-                            onClick={() => setPendingDelete(message)}
-                            danger
-                          >
-                            <TrashIcon />
-                          </ActionButton>
-                        </>
-                      ) : (
-                        <>
-                          <ActionButton
-                            label="Copy with sources"
-                            onClick={() => void copyText(withSources(message))}
-                          >
-                            <CopySourcesIcon />
-                          </ActionButton>
-                          <ActionButton
-                            label="Regenerate"
-                            onClick={() => void onRegenerate(message)}
-                            disabled={streaming || !hasReadyDocument}
-                          >
-                            <RegenerateIcon />
-                          </ActionButton>
-                          <ActionButton
-                            label="Delete"
-                            onClick={() => setPendingDelete(message)}
-                            danger
-                          >
-                            <TrashIcon />
-                          </ActionButton>
-                        </>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
+                {!isEditing ? (
+                  <div className="mt-1 flex flex-wrap items-center gap-0.5 print:hidden">
+                    <ActionButton label="Copy" onClick={() => void copyText(message.content)}>
+                      <CopyIcon />
+                    </ActionButton>
+                    {isUser ? (
+                      <>
+                        <ActionButton
+                          label="Edit and resend"
+                          onClick={() => {
+                            setEditingId(message.id);
+                            setEditValue(message.content);
+                          }}
+                          disabled={streaming}
+                        >
+                          <EditIcon />
+                        </ActionButton>
+                      </>
+                    ) : (
+                      <>
+                        <ActionButton
+                          label="Copy with sources"
+                          onClick={() => void copyText(withSources(message))}
+                        >
+                          <CopySourcesIcon />
+                        </ActionButton>
+                        <ActionButton
+                          label="Regenerate"
+                          onClick={() => void onRegenerate(message)}
+                          disabled={streaming || !hasReadyDocument}
+                        >
+                          <RegenerateIcon />
+                        </ActionButton>
+                      </>
+                    )}
+                    <ActionButton label="Delete" onClick={() => setPendingDelete(message)} danger>
+                      <TrashIcon />
+                    </ActionButton>
+                  </div>
+                ) : null}
               </li>
             );
           })}
 
           {streaming ? (
-            <li className="grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-3">
-              <span
-                aria-hidden="true"
-                className="select-none pt-0.5 font-mono text-sm text-faint"
-              >
-                ¶
-              </span>
-              <div className="border-t border-line pt-4">
-                {guardrail ? null : streamText ? (
-                  <MessageContent
-                    content={streamText}
-                    citations={liveCitations}
-                    onCitation={setRevealed}
-                    trailing={<span className="caret" aria-hidden="true" />}
-                  />
-                ) : (
-                  <p
-                    role="status"
-                    aria-live="polite"
-                    className="font-mono text-[11px] text-faint"
-                  >
-                    retrieving sources…
-                  </p>
-                )}
-              </div>
+            <li>
+              {guardrail ? null : streamText ? (
+                <MessageContent
+                  content={streamText}
+                  citations={liveCitations}
+                  onCitation={setRevealed}
+                  trailing={<span className="caret" aria-hidden="true" />}
+                />
+              ) : (
+                <p role="status" aria-live="polite" className="text-sm text-muted">
+                  Retrieving sources…
+                </p>
+              )}
             </li>
           ) : null}
           <li ref={bottomRef} />
@@ -600,27 +548,24 @@ export default function ChatPanel({
       </div>
 
       {guardrail ? (
-        <div
-          role="status"
-          className="mx-5 mt-3 border-l-2 border-accent bg-panel2/60 px-4 py-3"
-        >
-          <p className="font-mono text-[10px] tracking-wide text-accent">
-            {guardrail.reason === "no_documents" ? "no sources yet" : "nothing relevant"}
+        <div role="status" className="mx-5 mt-3 rounded-panel bg-bg px-4 py-3">
+          <p className="text-sm font-medium text-ink">
+            {guardrail.reason === "no_documents" ? "No sources yet" : "Nothing relevant"}
           </p>
-          <p className="mt-1 font-reading text-sm text-ink/90">{guardrail.message}</p>
+          <p className="mt-1 text-sm text-muted">{guardrail.message}</p>
         </div>
       ) : null}
 
       {streamError ? (
-        <div role="alert" className="mx-5 mt-3 border-l-2 border-danger bg-danger/5 px-4 py-3">
-          <p className="font-mono text-[10px] tracking-wide text-danger">model unavailable</p>
-          <p className="mt-1 font-reading text-sm text-ink/90">{streamError}</p>
+        <div role="alert" className="mx-5 mt-3 rounded-panel bg-bg px-4 py-3">
+          <p className="text-sm font-medium text-ink">Model unavailable</p>
+          <p className="mt-1 text-sm text-muted">{streamError}</p>
         </div>
       ) : null}
 
       {sources.length ? (
-        <p className="mx-5 mt-3 font-mono text-[10px] tracking-wide text-faint">
-          grounded in {sources.length} {sources.length === 1 ? "source" : "sources"}:{" "}
+        <p className="mx-5 mt-3 text-sm text-muted">
+          Grounded in {sources.length} {sources.length === 1 ? "source" : "sources"}:{" "}
           {sources.map((source) => source.filename).join(", ")}
         </p>
       ) : null}
@@ -631,40 +576,40 @@ export default function ChatPanel({
         </div>
       ) : null}
 
-      <div className="mt-4 border-t border-line px-5 pt-4 print:hidden">
-        <div className="flex items-end gap-3">
+      <div className="px-5 py-4 print:hidden">
+        <div className="prompt mx-auto max-w-[720px]">
           <textarea
             ref={composerRef}
             aria-label="Ask a question about this session's documents"
-            className="min-h-[3rem] flex-1 resize-none border border-line bg-bg px-3 py-2 font-reading text-base leading-relaxed text-ink outline-none transition-colors duration-200 placeholder:text-faint focus:border-accent disabled:opacity-50"
+            className="prompt__input"
             value={input}
             rows={2}
             placeholder={
-              hasReadyDocument
-                ? "Ask a question about these documents…"
-                : "Add a document to the corpus to begin"
+              hasReadyDocument ? "Ask what these documents say…" : "Add a document to begin"
             }
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={onKeyDown}
             disabled={composerDisabled}
           />
-          {streaming ? (
-            <button className={btnDanger} onClick={onStop} aria-label="Stop generating">
-              Stop
-            </button>
-          ) : (
-            <button
-              className={btnPrimary}
-              onClick={() => void onSend()}
-              disabled={!input.trim() || !hasReadyDocument}
-            >
-              Send
-            </button>
-          )}
+          <div className="prompt__row">
+            <span className="hidden text-[13px] text-muted sm:block">
+              Enter sends. Shift + Enter adds a line.
+            </span>
+            {streaming ? (
+              <button className={btnPrimary} onClick={onStop} aria-label="Stop generating">
+                Stop
+              </button>
+            ) : (
+              <button
+                className={btnPrimary}
+                onClick={() => void onSend()}
+                disabled={!input.trim() || !hasReadyDocument}
+              >
+                Send
+              </button>
+            )}
+          </div>
         </div>
-        <p className="mt-2 font-mono text-[10px] tracking-wide text-faint">
-          Enter to send · Shift + Enter for a new line · Ctrl/⌘K to search
-        </p>
       </div>
 
       <ConfirmDialog
