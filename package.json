@@ -1,0 +1,17 @@
+{
+  "name": "rag",
+  "private": true,
+  "version": "0.1.0",
+  "description": "RAG — a private, single-user chat-over-documents app.",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,green \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "backend\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --reload --port 8000 --app-dir backend",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "backend\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000 --app-dir backend",
+    "test": "backend\\.venv\\Scripts\\python.exe -m pytest backend/tests"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

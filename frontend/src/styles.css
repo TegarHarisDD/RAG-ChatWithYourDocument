@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Semantic palette. Light is the default; adding `.dark` to <html> swaps the
+   whole system. Values are raw RGB channels so Tailwind's "/50" opacity
+   modifiers keep working. */
+:root {
+  color-scheme: light;
+  --c-bg: 232 236 242;
+  --c-panel: 246 248 251;
+  --c-panel2: 226 232 240;
+  --c-raised: 255 255 255;
+  --c-line: 207 216 227;
+  --c-ink: 22 34 47;
+  --c-muted: 77 91 110;
+  --c-faint: 107 121 139;
+  --c-accent: 29 78 216;
+  --c-accent-deep: 18 54 155;
+  --c-primary: 29 78 216;
+  --c-on-primary: 246 248 251;
+  --c-danger: 178 58 46;
+  --c-success: 31 122 69;
+  --c-warning: 156 106 27;
+}
+
+.dark {
+  color-scheme: dark;
+  --c-bg: 20 26 34;
+  --c-panel: 27 34 44;
+  --c-panel2: 35 44 56;
+  --c-raised: 42 53 66;
+  --c-line: 47 58 72;
+  --c-ink: 228 234 242;
+  --c-muted: 154 167 182;
+  --c-faint: 116 130 147;
+  --c-accent: 108 155 255;
+  --c-accent-deep: 59 111 224;
+  --c-primary: 47 98 216;
+  --c-on-primary: 246 248 251;
+  --c-danger: 240 138 128;
+  --c-success: 111 207 151;
+  --c-warning: 229 192 123;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-bg font-reading text-ink antialiased;
+    font-optical-sizing: auto;
+  }
+
+  /* Fraunces carries the display voice; let it breathe with optical sizing. */
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+    font-optical-sizing: auto;
+  }
+
+  /* Clickable affordance (browsers default buttons to cursor: default). */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    @apply bg-accent/30 text-ink;
+  }
+
+  /* Visible, unobscured keyboard focus on every control. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-bg;
+  }
+
+  /* Thin cool scrollbars so panels feel native. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--c-line)) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: rgb(var(--c-line));
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* In-app modal scrim (native <dialog> top layer). */
+  dialog::backdrop {
+    background: rgb(12 18 28 / 0.55);
+    backdrop-filter: blur(3px);
+  }
+
+  /* Respect the user's motion preference. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* A citation behaves like a footnote marker: a raised rubric numeral that
+     opens the source passage it points at. */
+  .citation {
+    @apply inline-block translate-y-[-0.3em] border-b border-accent/50 px-[0.15em] font-mono text-[0.68em] font-medium leading-none tracking-tight text-accent transition-colors duration-150;
+  }
+
+  .citation:hover {
+    @apply border-accent bg-accent/15;
+  }
+
+  /* The streaming indicator: a single rubric caret. */
+  .caret {
+    @apply ml-0.5 inline-block h-[1em] w-[0.5ch] translate-y-[0.12em] animate-caret bg-accent align-baseline;
+  }
+
+  /* Layout-stable loading placeholder. */
+  .skeleton {
+    @apply animate-pulse bg-panel2;
+  }
+
+  /* Brief highlight when jumping to a message from search. */
+  .flash {
+    animation: cwd-flash 1.7s ease-out;
+  }
+}
+
+@keyframes cwd-flash {
+  0% {
+    background-color: rgb(var(--c-accent) / 0.18);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* Print: keep only the transcript, so "Print / Save as PDF" yields the answer
+   thread without the app chrome. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #transcript,
+  #transcript * {
+    visibility: visible;
+  }
+
+  #transcript {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: 0;
+    height: auto;
+    overflow: visible;
+  }
+}
