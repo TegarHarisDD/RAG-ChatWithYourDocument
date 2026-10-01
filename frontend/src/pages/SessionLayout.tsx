@@ -236,40 +236,19 @@ export default function SessionLayout() {
             </button>
           </div>
 
-          {manageOpen ? (
-            <div className="mx-3 mb-2 flex items-center gap-1 rounded-control bg-panel2 px-2 py-1.5">
-              <button className={btnGhost} onClick={toggleAll}>
-                {allSelected ? "Clear" : "Select all"}
-              </button>
-              <span className="ml-auto text-sm tabular-nums text-muted">
-                {selected.size} selected
+          <div className="px-4 pb-3">
+            <button
+              className={`${btnSecondary} w-full justify-between`}
+              onClick={() => setManageOpen(true)}
+              title="Select several sessions to delete"
+            >
+              <span className="inline-flex items-center gap-2">
+                <ChecklistIcon />
+                Manage sessions
               </span>
-              <button
-                className={btnDanger}
-                onClick={() => setConfirmDelete(true)}
-                disabled={selected.size === 0}
-              >
-                Delete
-              </button>
-              <button className={btnGhost} onClick={closeManage}>
-                Done
-              </button>
-            </div>
-          ) : (
-            <div className="px-4 pb-3">
-              <button
-                className={`${btnSecondary} w-full justify-between`}
-                onClick={() => setManageOpen(true)}
-                title="Select several sessions to delete"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <ChecklistIcon />
-                  Manage sessions
-                </span>
-                <span className="text-sm tabular-nums text-muted">{sessions.length}</span>
-              </button>
-            </div>
-          )}
+              <span className="text-sm tabular-nums text-muted">{sessions.length}</span>
+            </button>
+          </div>
 
           <nav aria-label="Sessions" className="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
             {sessionsQuery.isLoading ? (
